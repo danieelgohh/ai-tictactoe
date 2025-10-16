@@ -1,0 +1,66 @@
+body {
+  font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  justify-content: center;
+}
+button {
+  cursor: pointer;
+  border-radius: 15px;
+  text-align: center;
+  border: grey;
+  padding: 10px;
+  background-color: whitesmoke;
+  transition-duration: 0.4s;
+}
+button:hover {
+  border: 1px solid cornflowerblue;
+}
+#gameBoard {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#introduction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#game {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+}
+#results {
+  display: flex;
+  justify-content: space-between;
+}
+#grid {
+  display: grid;
+  grid-template: 50px 50px 50px / 50px 50px 50px;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+#gameControls {
+  display: flex;
+  justify-content: space-between;
+}
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.historyStats {
+  display: flex;
+  justify-content: space-between;
+}
+.box {
+  border: 2px solid aqua;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.selected {
+  background-color: cornflowerblue;
+  color: white;
+}

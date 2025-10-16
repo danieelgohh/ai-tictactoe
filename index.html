@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<head language="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tic Tac Toe</title>
+  <link rel="stylesheet" type="text/css" href="tictactoe.css">
+  <script src="tictactoe.js" defer></script>
+</head>
+<body>
+  <div id="gameBoard">
+    <div id="introduction">
+      <h2>Tic-Tac-Toe AI</h2>
+      <h3>Challenge the Unbeatable Opponent</h3>
+    </div>
+    
+    <div id="game">
+      <div id="settings">
+        <h3>Game Settings</h3>
+        <h2>Difficulty</h2>
+        <div id="difficulty">
+          <button id="easy">Easy</button>
+          <button id="medium">Medium</button>
+          <button id="hard">Hard</button>
+        </div>
+        <h2>Player Symbol</h2>
+        <div id="symbol">
+          <button id="first">Play as X</button>
+          <button id="second">Play as O</button>
+        </div>
+        <div id="results">
+          <div class="stats">
+            <h3 id="wins">0</h3>
+            <p>Wins</p>
+          </div>
+
+          <div class="stats">
+            <h3 id="losses">0</h3>
+            <p>Losses</p>
+          </div>
+
+          <div class="stats">
+            <h3 id="draws">0</h3>
+            <p>Draws</p>
+          </div>
+        </div>
+
+        <h3>Recent Games</h3>
+        <div id="history">
+          <div class="historyStats">
+            <p>X</p>
+            <p>Y</p>
+            <p>Z</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="playingField">
+        <h3>Dummy Text</h3>
+        <div id="grid"></div>
+
+        <div id="gameControls">
+          <button id="restart">New Game</button>
+          <button>Undo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

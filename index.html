@@ -8,6 +8,20 @@
 </head>
 <body>
   <div id="gameBoard">
+    <div id="resultModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Game Over</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>testing the pesting</p>
+        </div>
+        <div class="modal-footer">
+          <button class="restart">New Game</button>
+        </div>
+      </div>
+    </div>
     <div id="introduction">
       <h2>Tic-Tac-Toe AI</h2>
       <h3>Challenge the Unbeatable Opponent</h3>
@@ -59,7 +73,7 @@
         <div id="grid"></div>
 
         <div id="gameControls">
-          <button id="restart">New Game</button>
+          <button class="restart">New Game</button>
           <button>Undo</button>
         </div>
       </div>

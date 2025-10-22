@@ -6,13 +6,15 @@ const difficulty = document.getElementById("difficulty");
 const symbol = document.getElementById("symbol");
 const modal = document.getElementById("resultModal");
 
-let symbolTurn = 0, round = 0;
+difficulty.firstElementChild.classList.add("selected");
+symbol.firstElementChild.classList.add("selected");
+
 let occupied = new Array(9); for (let i = 0; i < 9; i++) occupied[i] = '';
+let playerSymbol = symbol.querySelector(".selected").id;
+let gameDifficulty = difficulty.querySelector(".selected").id;
+let aiSymbol;
 
 function initializeGame() {
-  difficulty.firstElementChild.classList.add("selected");
-  symbol.firstElementChild.classList.add("selected");
-
   const handleSymbolPlacement = (e) => placeSymbol(e.target); // Create the function
 
   for (let i = 0; i < 9; i++) {
@@ -33,27 +35,26 @@ function settingsSelect(setting, mode) {
     symbol.querySelector(".selected").classList.remove("selected");
     symbol.querySelector(`#${mode}`).classList.add("selected");
   }
+
+  playerSymbol = symbol.querySelector(".selected").id;
+  gameDifficulty = difficulty.querySelector(".selected").id;
+
+  restartGame();
 }
 
 function placeSymbol(box) {
   let winner;
-  gameRunning();
   box.removeEventListener("click", box._handleSymbolPlacement); // Removal of the event listener is possible from the reference
   box.classList.add("occupied");
 
-  if (symbolTurn < 1) {
-    box.innerHTML = "X";
-    occupied[box.id] = "X";
-    symbolTurn += 1;
-  } else {
-    box.innerHTML = "O";
-    occupied[box.id] = "O";
-    symbolTurn -= 1;
-  }
+  box.innerHTML = playerSymbol;
+  occupied[box.id] = playerSymbol;
 
   winner = checkFinalWinner();
   if (winner) {
     showWinner(winner);
+  } else {
+    initiateAIMove();
   }
 }
 
@@ -87,7 +88,6 @@ function checkFinalWinner() {
 function minimax(newBoard, targetSymbol) {
   const emptyCellsIndex = newBoard.map((cell, index) => cell === '' ? index : null)
                                   .filter((cell) => cell !== null)
-
   if (checkWinnerState(newBoard, aiSymbol)) {
     return { score: 10 };
   } else if (checkWinnerState(newBoard, playerSymbol)) {
@@ -98,16 +98,16 @@ function minimax(newBoard, targetSymbol) {
 
   let moves = [];
   for (let i = 0; i < emptyCellsIndex.length; i ++) {
-    let move = {};
+    const move = {};
+    move.index = emptyCellsIndex[i];
 
     newBoard[emptyCellsIndex[i]] = targetSymbol; // Places the target symbol on all available spaces
-
     if (targetSymbol === aiSymbol) {
       const result = minimax(newBoard, playerSymbol)
-      move.score = result;
+      move.score = result.score;
     } else if (targetSymbol === playerSymbol) {
       const result = minimax(newBoard, aiSymbol)
-      move.score = result;
+      move.score = result.score;
     }
 
     newBoard[emptyCellsIndex[i]] = '' // Remove the analysing spot
@@ -120,7 +120,7 @@ function minimax(newBoard, targetSymbol) {
     for (let i = 0; i < moves.length; i ++) {
       if (moves[i].score < bestScore) {
         bestScore = moves[i].score;
-        bestPlacement = moves[i].index
+        bestPlacement = i; // This part selects which combination in the moves array is right
       }
     }
   } else {
@@ -128,7 +128,7 @@ function minimax(newBoard, targetSymbol) {
     for (let i = 0; i < moves.length; i ++) {
       if (moves[i].score > bestScore) {
         bestScore = moves[i].score;
-        bestPlacement = moves[i].index;
+        bestPlacement = i; // This part selects which combination in the moves array is right
       }
     }
   }
@@ -136,9 +136,41 @@ function minimax(newBoard, targetSymbol) {
   return moves[bestPlacement];
 }
 
-function gameRunning() {
-
+function initiateAIMove() {
+  if (playerSymbol === "X") {
+    aiSymbol = "O";
+  } else {
+    aiSymbol = "X";
+  }
+  const availableSpaces = [...occupied].map((cell, index) => cell === '' ? index : null)
+                                      .filter((cell) => cell !== null)
+  const randomMove = availableSpaces[(Math.floor(Math.random() * availableSpaces.length))];
+  if (gameDifficulty === "easy") {
+    return placeAISymbol(randomMove);
+  } else if (gameDifficulty === "medium") {
+    return placeAISymbol(Math.random() > 0.7 ? minimax(occupied, aiSymbol).index : randomMove);
+  } else {
+    placeAISymbol(minimax(occupied, aiSymbol).index);
+  }
 }
+
+function placeAISymbol(cell) {
+  let selectedGrid = grid.querySelectorAll(".box")[cell]
+  if (playerSymbol === "X") {
+    selectedGrid.innerHTML = "O";
+    occupied[cell] = "O";
+  } else {
+    selectedGrid.innerHTML = "X";
+    occupied[cell] = "X";
+  }
+
+  selectedGrid.classList.add("occupied");
+
+  winner = checkFinalWinner();
+  if (winner) {
+    showWinner(winner);
+  }
+};
 
 function showWinner(winner) {
   modal.style.display = "block";
@@ -158,18 +190,23 @@ function dismissModal() {
 
 function restartGame() {
   grid.innerHTML = "";
-  grid.style.pointerEvents = "pointer";
-  symbolTurn = 0, round = 0;
+  grid.style.pointerEvents = "auto";
+  highlight = [];
+  new Array(9); for (let i = 0; i < 9; i++) occupied[i] = '';
   dismissModal();
   initializeGame();
+
+  if (playerSymbol === "O") {
+    initiateAIMove();
+  }
 }
 
 difficulty.querySelector("#easy").addEventListener("click", () => settingsSelect("difficulty", "easy"));
 difficulty.querySelector("#medium").addEventListener("click", () => settingsSelect("difficulty", "medium"));
 difficulty.querySelector("#hard").addEventListener("click", () => settingsSelect("difficulty", "hard"));
 
-symbol.querySelector("#first").addEventListener("click", () => settingsSelect("symbol", "first"));
-symbol.querySelector("#second").addEventListener("click", () => settingsSelect("symbol", "second"));
+symbol.querySelector("#X").addEventListener("click", () => settingsSelect("symbol", "X"));
+symbol.querySelector("#O").addEventListener("click", () => settingsSelect("symbol", "O"));
 
 for (let i = 0; i < newGame.length; i ++) {
   newGame[i].addEventListener("click", restartGame);

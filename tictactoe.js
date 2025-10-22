@@ -7,7 +7,7 @@ const symbol = document.getElementById("symbol");
 const modal = document.getElementById("resultModal");
 
 let symbolTurn = 0, round = 0; highlight = []
-let occupied = new Array(9); for (let i = 0; i < 9; i++) occupied[i] = 0;
+let occupied = new Array(9); for (let i = 0; i < 9; i++) occupied[i] = '';
 
 function initializeGame() {
   difficulty.firstElementChild.classList.add("selected");
@@ -36,58 +36,57 @@ function settingsSelect(setting, mode) {
 }
 
 function placeSymbol(box) {
-  let winner = 0;
+  let winner;
   gameRunning();
   box.removeEventListener("click", box._handleSymbolPlacement); // Removal of the event listener is possible from the reference
   box.classList.add("occupied");
 
   if (symbolTurn < 1) {
     box.innerHTML = "X";
-    occupied[box.id] += 1;
+    occupied[box.id] = "X";
     symbolTurn += 1;
   } else {
     box.innerHTML = "O";
-    occupied[box.id] += 10;
+    occupied[box.id] = "O";
     symbolTurn -= 1;
   }
 
-  winner = checkWinner(occupied);
-  if (winner > 0) {
+  winner = checkFinalWinner();
+  if (winner) {
     showWinner(winner);
   }
 }
 
-function checkWinner(occupied) {
-  for (let i = 0; i < 3; i ++) {
-    if (i === 0) {
-      if (occupied[i] + occupied[i + 1] + occupied[i + 2] === 3 || occupied[i] + occupied[i + 1] + occupied[i + 2] === 30) { // Horizontal
-        highlight = [i, i + 1, i + 2];
-        return occupied[i] + occupied[i + 1] + occupied[i + 2];
-      } else if (occupied[i + 3] + occupied[i + 4] + occupied[i + 5] === 3 || occupied[i + 3] + occupied[i + 4] + occupied[i + 5] === 30) { // Horizontal
-        highlight = [i + 3, i + 4, i + 5];
-        return occupied[i + 3] + occupied[i + 4] + occupied[i + 5];
-      } else if (occupied[i + 6] + occupied[i + 7] + occupied[i + 8] === 3 || occupied[i + 6] + occupied[i + 7] + occupied[i + 8] === 30) { // Horizontal
-        highlight = [i + 6, i + 7, i + 8];
-        return occupied[i + 6] + occupied[i + 7] + occupied[i + 8];
-      } else if (occupied[i] + occupied[i + 4] + occupied[i + 8] === 3 || occupied[i] + occupied[i + 4] + occupied[i + 8] === 30) { // Diagonal
-        highlight = [i, i + 4, i + 8];
-        return occupied[i] + occupied[i + 4] + occupied[i + 8];
-      }
-    };
-
-    if (i === 2) {
-      if (occupied[i] + occupied[i + 2] + occupied[i + 4] === 3 || occupied[i] + occupied[i + 2] + occupied[i + 4] === 30) { // Diagonal 
-        highlight = [i, i + 2, i + 4];
-        return occupied[i] + occupied[i + 2] + occupied[i + 4];
-      }
-    };
-
-    if (occupied[i] + occupied[i + 3] + occupied[i + 6] === 3 || occupied[i] + occupied[i + 3] + occupied[i + 6] === 30) { // Vertical for 0, 1, 2
-      highlight = [i, i + 3, i + 6];
-      return occupied[i] + occupied[i + 3] + occupied[i + 6];
-    };
-  };
+function checkWinnerState(boardState, symbolCheck) { // Board win chance analyse
+  const completeSet = [[0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
+                      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertical
+                      [0, 4, 8], // Diagonal top left to bottom right
+                      [2, 4, 6]]; // Diagonal top right to bottom left
+  
+  return completeSet.some(set => 
+    set.every(cellIndex => boardState[cellIndex] === symbolCheck)
+  );
 };
+
+function checkFinalWinner() {
+  const completeSet = [[0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
+                      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertical
+                      [0, 4, 8], // Diagonal top left to bottom right
+                      [2, 4, 6]]; // Diagonal top right to bottom left
+  
+  for (const set of completeSet) {
+    const [a, b, c] = set;
+    if (occupied[a] && occupied[a] === occupied[b] && occupied[a] === occupied[c]) {
+      return set;
+    }
+  }
+
+  return null;
+}
+
+function minimax() {
+
+}
 
 function gameRunning() {
 
@@ -97,18 +96,13 @@ function showWinner(winner) {
   modal.style.display = "block";
   modal.querySelector(".close").addEventListener("click", dismissModal);
   grid.style.pointerEvents = "none"; // Disables the grid to be clicked
-  console.log(highlight);
 
-  for (let i = 0; i < highlight.length; i ++) {
-    let bruh = document.getElementById(`${highlight[i]}`).classList.add("highlight");
-    console.log(bruh);
+  for (let i = 0; i < winner.length; i ++) {
+    console.log(winner)
+    document.getElementById(`${winner[i]}`).classList.add("highlight");
   }
 
-  if (winner === 3) {
-    modal.querySelector(".modal-body").querySelector("p").innerHTML = "X wins!"
-  } else {
-    modal.querySelector(".modal-body").querySelector("p").innerHTML = "O wins!"
-  }
+  modal.querySelector(".modal-body").querySelector("p").innerHTML = `${occupied[winner[0]]} wins!`
 }
 
 function dismissModal() {
@@ -116,7 +110,11 @@ function dismissModal() {
 }
 
 function restartGame() {
-
+  grid.innerHTML = "";
+  grid.style.pointerEvents = "pointer";
+  symbolTurn = 0, round = 0; highlight = []
+  dismissModal();
+  initializeGame();
 }
 
 difficulty.querySelector("#easy").addEventListener("click", () => settingsSelect("difficulty", "easy"));
@@ -127,7 +125,7 @@ symbol.querySelector("#first").addEventListener("click", () => settingsSelect("s
 symbol.querySelector("#second").addEventListener("click", () => settingsSelect("symbol", "second"));
 
 for (let i = 0; i < newGame.length; i ++) {
-  newGame[i].addEventListener("click", initializeGame);
+  newGame[i].addEventListener("click", restartGame);
 }
 
 

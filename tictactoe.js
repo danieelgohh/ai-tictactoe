@@ -6,7 +6,7 @@ const difficulty = document.getElementById("difficulty");
 const symbol = document.getElementById("symbol");
 const modal = document.getElementById("resultModal");
 
-let symbolTurn = 0, round = 0; highlight = []
+let symbolTurn = 0, round = 0;
 let occupied = new Array(9); for (let i = 0; i < 9; i++) occupied[i] = '';
 
 function initializeGame() {
@@ -84,8 +84,56 @@ function checkFinalWinner() {
   return null;
 }
 
-function minimax() {
+function minimax(newBoard, targetSymbol) {
+  const emptyCellsIndex = newBoard.map((cell, index) => cell === '' ? index : null)
+                                  .filter((cell) => cell !== null)
 
+  if (checkWinnerState(newBoard, aiSymbol)) {
+    return { score: 10 };
+  } else if (checkWinnerState(newBoard, playerSymbol)) {
+    return { score: -10 };
+  } else if (emptyCellsIndex.length === 0) {
+    return { score: 0 };
+  }
+
+  let moves = [];
+  for (let i = 0; i < emptyCellsIndex.length; i ++) {
+    let move = {};
+
+    newBoard[emptyCellsIndex[i]] = targetSymbol; // Places the target symbol on all available spaces
+
+    if (targetSymbol === aiSymbol) {
+      const result = minimax(newBoard, playerSymbol)
+      move.score = result;
+    } else if (targetSymbol === playerSymbol) {
+      const result = minimax(newBoard, aiSymbol)
+      move.score = result;
+    }
+
+    newBoard[emptyCellsIndex[i]] = '' // Remove the analysing spot
+    moves.push(move);
+   }
+
+  let bestPlacement;
+  if (targetSymbol === playerSymbol) {
+    let bestScore = Infinity;
+    for (let i = 0; i < moves.length; i ++) {
+      if (moves[i].score < bestScore) {
+        bestScore = moves[i].score;
+        bestPlacement = moves[i].index
+      }
+    }
+  } else {
+    let bestScore = -Infinity;
+    for (let i = 0; i < moves.length; i ++) {
+      if (moves[i].score > bestScore) {
+        bestScore = moves[i].score;
+        bestPlacement = moves[i].index;
+      }
+    }
+  }
+
+  return moves[bestPlacement];
 }
 
 function gameRunning() {
@@ -98,7 +146,6 @@ function showWinner(winner) {
   grid.style.pointerEvents = "none"; // Disables the grid to be clicked
 
   for (let i = 0; i < winner.length; i ++) {
-    console.log(winner)
     document.getElementById(`${winner[i]}`).classList.add("highlight");
   }
 
@@ -112,7 +159,7 @@ function dismissModal() {
 function restartGame() {
   grid.innerHTML = "";
   grid.style.pointerEvents = "pointer";
-  symbolTurn = 0, round = 0; highlight = []
+  symbolTurn = 0, round = 0;
   dismissModal();
   initializeGame();
 }

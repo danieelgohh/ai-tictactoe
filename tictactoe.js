@@ -70,6 +70,9 @@ function checkWinnerState(boardState, symbolCheck) { // Board win chance analyse
 };
 
 function checkFinalWinner() {
+  if (occupied.filter(cell => cell === "").length === 0) {
+    return "Tie"
+  }
   const completeSet = [[0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
                       [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertical
                       [0, 4, 8], // Diagonal top left to bottom right
@@ -81,6 +84,8 @@ function checkFinalWinner() {
       return set;
     }
   }
+
+  
 
   return null;
 }
@@ -177,11 +182,14 @@ function showWinner(winner) {
   modal.querySelector(".close").addEventListener("click", dismissModal);
   grid.style.pointerEvents = "none"; // Disables the grid to be clicked
 
-  for (let i = 0; i < winner.length; i ++) {
-    document.getElementById(`${winner[i]}`).classList.add("highlight");
+  if (winner === "Tie") {
+    modal.querySelector(".modal-body").querySelector("p").innerHTML = `Game is tied!`
+  } else {
+    for (let i = 0; i < winner.length; i ++) {
+      document.getElementById(`${winner[i]}`).classList.add("highlight");
+    }
+    modal.querySelector(".modal-body").querySelector("p").innerHTML = `${occupied[winner[0]]} wins!`
   }
-
-  modal.querySelector(".modal-body").querySelector("p").innerHTML = `${occupied[winner[0]]} wins!`
 }
 
 function dismissModal() {

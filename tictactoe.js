@@ -5,6 +5,8 @@ const newGame = document.getElementsByClassName("restart");
 const difficulty = document.getElementById("difficulty");
 const symbol = document.getElementById("symbol");
 const modal = document.getElementById("resultModal");
+const undo = document.getElementById("undo");
+const date = new Date();
 
 difficulty.firstElementChild.classList.add("selected");
 symbol.firstElementChild.classList.add("selected");
@@ -13,12 +15,16 @@ let occupied = new Array(9); for (let i = 0; i < 9; i++) occupied[i] = '';
 let playerSymbol = symbol.querySelector(".selected").id;
 let gameDifficulty = difficulty.querySelector(".selected").id;
 let aiSymbol;
+let playerStats = [0, 0, 0];
+let playerHistory = [];
+let movesHistory = [];
 
 function initializeGame() {
   const handleSymbolPlacement = (e) => placeSymbol(e.target); // Create the function
 
   for (let i = 0; i < 9; i++) {
     const box = document.createElement("div");
+    console.log(box)
     box.classList.add("box");
     box.setAttribute("id", i);
     box._handleSymbolPlacement = handleSymbolPlacement; // Create the reference to the function
@@ -49,6 +55,8 @@ function placeSymbol(box) {
 
   box.innerHTML = playerSymbol;
   occupied[box.id] = playerSymbol;
+
+  movesHistory.push(parseInt(box.id))
 
   winner = checkFinalWinner();
   if (winner) {
@@ -170,6 +178,7 @@ function placeAISymbol(cell) {
   }
 
   selectedGrid.classList.add("occupied");
+  movesHistory.push(cell);
 
   winner = checkFinalWinner();
   if (winner) {
@@ -181,14 +190,43 @@ function showWinner(winner) {
   modal.style.display = "block";
   modal.querySelector(".close").addEventListener("click", dismissModal);
   grid.style.pointerEvents = "none"; // Disables the grid to be clicked
+  undo.style.pointerEvents = "none";
+  winnerSymbol = occupied[winner[0]];
+  const completeDate = " " + date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear() + "," + date.getHours() + ":" + date.getMinutes() + " ";
+
+  const playerHistoryStats = {}
 
   if (winner === "Tie") {
     modal.querySelector(".modal-body").querySelector("p").innerHTML = `Game is tied!`
+    stats[2].innerHTML = playerStats[2] += 1;
+    playerHistoryStats.result = "Draw"
   } else {
     for (let i = 0; i < winner.length; i ++) {
       document.getElementById(`${winner[i]}`).classList.add("highlight");
     }
-    modal.querySelector(".modal-body").querySelector("p").innerHTML = `${occupied[winner[0]]} wins!`
+    modal.querySelector(".modal-body").querySelector("p").innerHTML = `${winnerSymbol} wins!`
+    if (winnerSymbol === playerSymbol) {
+      stats[0].innerHTML = playerStats[0] += 1;
+      playerHistoryStats.result = "Win"
+    } else {
+      stats[1].innerHTML = playerStats[1] += 1;
+      playerHistoryStats.result = "Loss"
+    }
+  }
+
+  playerHistoryStats.date = completeDate;
+  playerHistoryStats.level = gameDifficulty;
+
+  if (playerHistory.length > 3) {
+    playerHistory[0] = playerHistoryStats;
+  } else {
+    playerHistory.unshift(playerHistoryStats);
+  }
+
+  for (let i = 0; i < playerHistory.length; i ++) {
+    let historyDetail = document.createElement("p");
+    historyDetail.innerHTML = playerHistory[i].result + playerHistory[i].date + playerHistory[i].level
+    history.append(historyDetail);
   }
 }
 
@@ -200,12 +238,43 @@ function restartGame() {
   grid.innerHTML = "";
   grid.style.pointerEvents = "auto";
   highlight = [];
+  movesHistory = [];
   new Array(9); for (let i = 0; i < 9; i++) occupied[i] = '';
   dismissModal();
   initializeGame();
 
+  undo.style.pointerEvents = "auto";
+
   if (playerSymbol === "O") {
     initiateAIMove();
+  }
+}
+
+function undoMove() {
+  if (movesHistory.length === 0) {
+    return null
+  } else {
+    const handleSymbolPlacement = (e) => placeSymbol(e.target); // Create the function
+    const lastIndex1 = movesHistory.pop();
+    const lastIndex2 = movesHistory.pop();
+    let removalGrid1 = document.getElementsByClassName("box")[lastIndex1];
+    let removalGrid2 = document.getElementsByClassName("box")[lastIndex2];
+  
+    occupied[lastIndex1] = "";
+    occupied[lastIndex2] = "";
+
+    console.log(removalGrid1)
+  
+    removalGrid1.innerHTML = "";
+    removalGrid1.classList.remove("occupied");
+    removalGrid1._handleSymbolPlacement = handleSymbolPlacement;
+    removalGrid1.addEventListener("click", handleSymbolPlacement) // Attach the function to the click
+    removalGrid2.innerHTML = "";
+    removalGrid2.classList.remove("occupied");
+    removalGrid2._handleSymbolPlacement = handleSymbolPlacement;
+    removalGrid2.addEventListener("click", handleSymbolPlacement) // Attach the function to the click
+
+    console.log(occupied)
   }
 }
 
@@ -215,6 +284,8 @@ difficulty.querySelector("#hard").addEventListener("click", () => settingsSelect
 
 symbol.querySelector("#X").addEventListener("click", () => settingsSelect("symbol", "X"));
 symbol.querySelector("#O").addEventListener("click", () => settingsSelect("symbol", "O"));
+
+undo.addEventListener("click", () => undoMove());
 
 for (let i = 0; i < newGame.length; i ++) {
   newGame[i].addEventListener("click", restartGame);

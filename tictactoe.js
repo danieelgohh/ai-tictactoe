@@ -251,7 +251,7 @@ function restartGame() {
 }
 
 function undoMove() {
-  if (movesHistory.length === 0) {
+  if (movesHistory.length <= 1) {
     return null
   } else {
     const handleSymbolPlacement = (e) => placeSymbol(e.target); // Create the function
@@ -267,12 +267,10 @@ function undoMove() {
   
     removalGrid1.innerHTML = "";
     removalGrid1.classList.remove("occupied");
-    removalGrid1._handleSymbolPlacement = handleSymbolPlacement;
-    removalGrid1.addEventListener("click", handleSymbolPlacement) // Attach the function to the click
+    removalGrid1.addEventListener("click", removalGrid1._handleSymbolPlacement) // Attach the function to the click
     removalGrid2.innerHTML = "";
     removalGrid2.classList.remove("occupied");
-    removalGrid2._handleSymbolPlacement = handleSymbolPlacement;
-    removalGrid2.addEventListener("click", handleSymbolPlacement) // Attach the function to the click
+    removalGrid2.addEventListener("click", removalGrid2._handleSymbolPlacement) // Attach the function to the click
 
     console.log(occupied)
   }

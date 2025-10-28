@@ -6,6 +6,7 @@ const difficulty = document.getElementById("difficulty");
 const symbol = document.getElementById("symbol");
 const modal = document.getElementById("resultModal");
 const undo = document.getElementById("undo");
+const gameStatus = document.getElementById("gameStatus");
 const date = new Date();
 
 difficulty.firstElementChild.classList.add("selected");
@@ -21,10 +22,12 @@ let movesHistory = [];
 
 function initializeGame() {
   const handleSymbolPlacement = (e) => placeSymbol(e.target); // Create the function
+  if (playerSymbol === "X") {
+    gameStatus.innerHTML = "Your turn, make a move!"
+  } 
 
   for (let i = 0; i < 9; i++) {
     const box = document.createElement("div");
-    console.log(box)
     box.classList.add("box");
     box.setAttribute("id", i);
     box._handleSymbolPlacement = handleSymbolPlacement; // Create the reference to the function
@@ -56,7 +59,9 @@ function placeSymbol(box) {
   box.innerHTML = playerSymbol;
   occupied[box.id] = playerSymbol;
 
-  movesHistory.push(parseInt(box.id))
+  movesHistory.push(parseInt(box.id));
+
+  gameStatus.innerHTML = "Waiting for AI ..."
 
   winner = checkFinalWinner();
   if (winner) {
@@ -168,22 +173,29 @@ function initiateAIMove() {
 }
 
 function placeAISymbol(cell) {
+  let winner;
   let selectedGrid = grid.querySelectorAll(".box")[cell]
-  if (playerSymbol === "X") {
-    selectedGrid.innerHTML = "O";
-    occupied[cell] = "O";
-  } else {
-    selectedGrid.innerHTML = "X";
-    occupied[cell] = "X";
-  }
+  grid.style.pointerEvents = "none";
+  setTimeout(() => {
+    if (playerSymbol === "X") {
+      selectedGrid.innerHTML = "O";
+      occupied[parseInt(cell)] = "O";
+    } else {
+      selectedGrid.innerHTML = "X";
+      occupied[parseInt(cell)] = "X";
+    }
+  
+    selectedGrid.classList.add("occupied");
+    movesHistory.push(cell);
+  
+    gameStatus.innerHTML = "Your turn, make a move!"
+    grid.style.pointerEvents = "auto";
 
-  selectedGrid.classList.add("occupied");
-  movesHistory.push(cell);
-
-  winner = checkFinalWinner();
-  if (winner) {
-    showWinner(winner);
-  }
+    winner = checkFinalWinner();
+    if (winner) {
+      showWinner(winner);
+    }
+  }, 10);
 };
 
 function showWinner(winner) {
@@ -200,6 +212,7 @@ function showWinner(winner) {
     modal.querySelector(".modal-body").querySelector("p").innerHTML = `Game is tied!`
     stats[2].innerHTML = playerStats[2] += 1;
     playerHistoryStats.result = "Draw"
+    gameStatus.innerHTML = "Game is tied!"
   } else {
     for (let i = 0; i < winner.length; i ++) {
       document.getElementById(`${winner[i]}`).classList.add("highlight");
@@ -208,20 +221,25 @@ function showWinner(winner) {
     if (winnerSymbol === playerSymbol) {
       stats[0].innerHTML = playerStats[0] += 1;
       playerHistoryStats.result = "Win"
+      gameStatus.innerHTML = "You won!"
     } else {
       stats[1].innerHTML = playerStats[1] += 1;
       playerHistoryStats.result = "Loss"
+      gameStatus.innerHTML = "AI won!"
     }
   }
 
   playerHistoryStats.date = completeDate;
   playerHistoryStats.level = gameDifficulty;
 
-  if (playerHistory.length > 3) {
-    playerHistory[0] = playerHistoryStats;
+  if (playerHistory.length === 3) {
+    playerHistory.unshift(playerHistoryStats);
+    playerHistory.pop();
   } else {
     playerHistory.unshift(playerHistoryStats);
   }
+
+  history.innerHTML = ""
 
   for (let i = 0; i < playerHistory.length; i ++) {
     let historyDetail = document.createElement("p");
@@ -254,7 +272,6 @@ function undoMove() {
   if (movesHistory.length <= 1) {
     return null
   } else {
-    const handleSymbolPlacement = (e) => placeSymbol(e.target); // Create the function
     const lastIndex1 = movesHistory.pop();
     const lastIndex2 = movesHistory.pop();
     let removalGrid1 = document.getElementsByClassName("box")[lastIndex1];
@@ -262,8 +279,6 @@ function undoMove() {
   
     occupied[lastIndex1] = "";
     occupied[lastIndex2] = "";
-
-    console.log(removalGrid1)
   
     removalGrid1.innerHTML = "";
     removalGrid1.classList.remove("occupied");
@@ -271,8 +286,6 @@ function undoMove() {
     removalGrid2.innerHTML = "";
     removalGrid2.classList.remove("occupied");
     removalGrid2.addEventListener("click", removalGrid2._handleSymbolPlacement) // Attach the function to the click
-
-    console.log(occupied)
   }
 }
 

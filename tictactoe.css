@@ -1,3 +1,13 @@
+:root {
+  --step--2: clamp(0.7813rem, 0.7775rem + 0.0188vw, 0.8rem);
+  --step--1: clamp(0.9375rem, 0.925rem + 0.0625vw, 1rem);
+  --step-0: clamp(1.125rem, 1.1rem + 0.125vw, 1.25rem);
+  --step-1: clamp(1.35rem, 1.3075rem + 0.2125vw, 1.5625rem);
+  --step-2: clamp(1.62rem, 1.5534rem + 0.3331vw, 1.9531rem);
+  --step-3: clamp(1.944rem, 1.8445rem + 0.4974vw, 2.4414rem);
+  --step-4: clamp(2.3328rem, 2.189rem + 0.719vw, 3.0518rem);
+  --step-5: clamp(2.7994rem, 2.5963rem + 1.0153vw, 3.8147rem);
+}
 body {
   font-family: 'Courier New', Courier, monospace;
   display: flex;
@@ -6,6 +16,12 @@ body {
   align-items: center;
   height: 100vh;
   width: 100vw;
+  margin: 0;
+  font-size: var(--step--2);
+  overflow: hidden;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 h2 {
   margin: 0;
@@ -26,24 +42,24 @@ button {
   transition-duration: 0.4s;
   box-shadow: 0px 4px 6px 0px black;
   border: 0.2px solid;
+  font-size: var(--step--2);
 }
 button:hover {
   background-color: cornflowerblue;
 }
 #gameBoard {
-  height: 640px;
-  width: 80%;
-  display: flex;
-  flex-direction: column;
+  height: 90vh;
+  width: 90vw;
+  display: grid;
+  grid-template: 10% 90% / 100%;
   justify-content: center;
   border-radius: 10px;
   box-shadow: 0px 0px 20px black;
   margin-bottom: 0px;
   background-color: #f4f5ff;
+  overflow-y: scroll;
 }
 #introduction {
-  width: 100%;
-  height: 30%;
   border-radius: 10px 10px 0 0;
   display: flex;
   flex-direction: column;
@@ -52,30 +68,37 @@ button:hover {
   gap: 10px;
   background-color: cornflowerblue;
   margin-bottom: 0px;
+  width: 100%;
 }
 #game {
-  display: flex;
-  justify-content: center;
-  gap: 100px;
+  display: grid;
+  grid-template: 100% 100% / 100%;
   margin-bottom: 0px;
   border-radius: 10px;
-  padding-top: 10px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  justify-content: center;
+  align-items: center;
   height: 100%;
 }
 #results {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   margin-top: 10px;
+  width: 60%;
 }
 #grid {
   display: grid;
-  grid-template: 90px 90px 90px / 90px 90px 90px;
+  grid-template: repeat(3, 75px) / repeat(3, 75px);
+  justify-content: center;
   gap: 10px;
   padding-bottom: 10px;
 }
 #gameControls {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  width: 60%;
 }
 #symbol {
   margin-bottom: 10px;
@@ -84,12 +107,18 @@ button:hover {
   gap: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  scroll-snap-align: start;
+  height: 100%;
 }
 #playingField {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
+  width: 100%;
+  align-items: center;
+  height: 100%;
 }
 #gameDisplay {
   display: flex;
@@ -108,6 +137,7 @@ button:hover {
 .box {
   display: flex;
   justify-content: center;
+  align-items: center;
   border: 2px solid darkblue;
   border-radius: 5px;
   cursor: pointer;
@@ -123,8 +153,8 @@ button:hover {
   z-index: 1;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   overflow: auto;
   background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0 , 0, 0.4);
@@ -140,12 +170,16 @@ button:hover {
   display: flex;
   flex-direction: column;
   position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   align-items: center;
   background-color: #fefefe;
-  margin: 15% auto;
+  margin: 0;
   padding: 20px;
   border: 1px solid #888;
-  width: 30%;
+  width: 70vw;
+  border-radius: 5px;
 }
 .close {
   position: absolute;
@@ -164,7 +198,7 @@ button:hover {
 }
 .occupied {
   display: flex;
-  font-size: 95px;
+  font-size: var(--step-5);
 }
 .highlight {
   background-color: greenyellow;
@@ -172,4 +206,68 @@ button:hover {
 .headerText {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+.pageScroll {
+  scroll-snap-align: start;
+  box-sizing: border-box;
+}
+
+@media (min-height: 700px) {
+  #gameBoard {
+    height: 75vh;
+  }
+}
+@media (min-width: 380px) {
+  #results {
+    justify-content: space-around;
+  }
+}
+@media (min-width: 480px) {
+  .modal-content {
+    width: 60vw;
+  }
+  #grid {
+    grid-template: repeat(3, 90px) / repeat(3, 90px);
+  }
+}
+@media (min-width: 768px) {
+  #game {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-bottom: 0px;
+    border-radius: 10px;
+    padding-top: 10px;
+    height: 100%;
+    width: 100%;
+    scroll-snap-type: none;
+  }
+  #settings {
+    width: 100%;
+  }
+  #gameBoard {
+    width: 80vh;
+    grid-template: 10% 90% / 80vh;
+  }
+  #grid {
+    grid-template: 65px 65px 65px / 65px 65px 65px;
+  }
+  .modal-content {
+    width: 40vw;
+  }
+}
+@media (min-width: 1024px) {
+  .modal-content {
+    width: 30vw;
+  }
+}
+@media (min-width: 1280px) {
+  .modal-content {
+    width: 25vw;
+  }
+}
+@media (min-width: 1440px) {
+  .modal-content {
+    width: 20vw;
+  }
 }

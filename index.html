@@ -6,8 +6,8 @@
   <link rel="stylesheet" type="text/css" href="tictactoe.css">
   <script src="tictactoe.js" defer></script>
 </head>
-<body>
-  <div id="gameBoard">
+<body class="hide-scrollbar">
+  <div id="gameBoard" class="hide-scrollbar">
     <div id="resultModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -27,9 +27,9 @@
       <h3>Challenge the Unbeatable Opponent</h3>
     </div>
     
-    <div id="game">
-      <div id="settings">
-        <h3 class="headerText">Game Settings</h3>
+    <div id="game" class="hide-scrollbar">
+      <div id="settings" class="pageScroll">
+        <h1 class="headerText">Game Settings</h1>
         <h2>Difficulty</h2>
         <div id="difficulty">
           <button id="easy">Easy</button>
@@ -64,7 +64,7 @@
         </div>
       </div>
 
-      <div id="playingField">
+      <div id="playingField" class="pageScroll">
         <div id="gameDisplay">
           <h3 id="gameStatus" class="headerText"></h3>
         </div>

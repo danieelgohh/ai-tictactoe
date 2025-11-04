@@ -97,9 +97,6 @@ function checkFinalWinner() {
       return set;
     }
   }
-
-  
-
   return null;
 }
 
